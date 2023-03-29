@@ -7,6 +7,19 @@ Example project with minimal test-case for the type resolution issue in tsc
 In the projects having non-hoisted types we got tsc resolver for type reference directive working differently with or without `compilerOptions.paths` causing failure in resolution in case we have it set.
 The example project is attached.
 
+### Minimal test-case
+To have types out of `node_modules/@types/` I am using use `--public-hoist-pattern ""` for pnpm, this is important on trying to reproduce.
+
+Test case:
+1. Use the test-case from this repository
+2. Install dependencies with the exact command:
+`pnpm i --frozen-lockfile --public-hoist-pattern ""`
+3. Run `tsc`, it will fail to resolve type-referene directive 'express-serve-static-core'
+4. To get tsc complete successfully remove `paths` from `tsconfig.json` and run `tsc` again.
+
+
+### Detailed description
+
 // Example project tree:
 ``` 
 ├── node_modules
@@ -94,16 +107,6 @@ Resolving real path for '/store_path_replaced/.pnpm-v-store/@types/express@4.17.
 + 'package.json' has 'types' field 'index.d.ts' that references '/store_path_replaced/.pnpm-v-store/@types/express@4.17.17/node_modules/@types/express-serve-static-core/index.d.ts'.
 // the main difference that it reads `package.json` and takes `types` ref from there
 ```
-
-
-To have types out of `node_modules/@types/` I am using use `--public-hoist-pattern ""` for pnpm, this is important on trying to reproduce.
-
-Test case:
-1. Use the test-case from this repository
-2. Install dependencies with the exact command:
-`pnpm i --frozen-lockfile --public-hoist-pattern ""`
-3. Run `tsc`, it will fail to resolve type-referene directive 'express-serve-static-core'
-4. To get tsc complete successfully remove `paths` from `tsconfig.json` and run `tsc` again.
 
 
 
