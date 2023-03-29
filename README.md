@@ -99,7 +99,7 @@ Resolving real path for '/store_path_replaced/.pnpm-v-store/@types/express@4.17.
 To have types out of `node_modules/@types/` I am using use `--public-hoist-pattern ""` for pnpm, this is important on trying to reproduce.
 
 Test case:
-1. Untar the attached test-case.tar to any tmp directory
+1. Use the test-case from this repository
 2. Install dependencies with the exact command:
 `pnpm i --frozen-lockfile --public-hoist-pattern ""`
 3. Run `tsc`, it will fail to resolve type-referene directive 'express-serve-static-core'
@@ -130,7 +130,7 @@ Test case:
 
 ### 🙁 Actual behavior
 
-When compilerOptions.paths is set we got no check for package.json in the referenced module so tsc couldn't resolve the type, in the same time with no `paths` set it could resolve it as package.json is checked and `types` field is taken into accound from there.
+When `compilerOptions.paths` is set we got no check for package.json in the referenced module so tsc couldn't resolve the type, in the same time with no `paths` set it could resolve it as package.json is checked and `types` field is taken into accound from there.
 
 ### 🙂 Expected behavior
 
