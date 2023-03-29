@@ -8,6 +8,7 @@ In the projects having non-hoisted types we got tsc resolver for type reference 
 The example project is attached.
 
 // Example project tree:
+``` 
 ├── node_modules
 │   ├── express -> ../.pnpm-v-store/express@4.18.2/node_modules/express
 │   └── @types
@@ -18,8 +19,10 @@ The example project is attached.
 ├── src
 │   ├── a.ts
 └── tsconfig.json
+```
 
 // tsconfig.json:
+```
 {
     "compilerOptions": {
         "allowJs": true,
@@ -29,19 +32,19 @@ The example project is attached.
         "skipLibCheck": true,
         "esModuleInterop": true,
         "moduleResolution": "node",
-
-	    "baseUrl": "node_modules",
+	"baseUrl": "node_modules",
         "paths": { "*": [ "*", "./@types/*" ] }
     },
     "include": [ "src/**/*" ]
 }
-
+```
 
 
 Resolve logs are a bit different in general as with `paths` tsc starts to resolve symlinks, but this doesn't look as a root cause, because it is still able to see the directories in both cases, but the main issue is it just skips search for `{module}/package.json` in case we have `paths`:
 
 
-Resolve log for `express-serve-static-core` with `paths` set in tsconfig.json:
+// Resolve log for `express-serve-static-core` with `paths` set in tsconfig.json:
+```
 ======== Resolving type reference directive 'express-serve-static-core', containing file '/tmp/tsc_test1/projA/node_modules/@types/express/index.d.ts', root directory '/tmp/tsc_test1/projA/node_modules/@types'. ========
 Resolving with primary search path '/tmp/tsc_test1/projA/node_modules/@types'.
 Looking up in 'node_modules' folder, initial location '/tmp/tsc_test1/projA/node_modules/@types/express'.
@@ -53,9 +56,11 @@ Directory '/tmp/tsc_test1/node_modules' does not exist, skipping all lookups in 
 Directory '/tmp/node_modules' does not exist, skipping all lookups in it.
 Directory '/node_modules' does not exist, skipping all lookups in it.
 ======== Type reference directive 'express-serve-static-core' was not resolved. ========
+```
 
 
-Resolve log for `express-serve-static-core` without `paths` set in tsconfig.json:
+// Resolve log for `express-serve-static-core` without `paths` set in tsconfig.json:
+```
 ======== Resolving type reference directive 'express-serve-static-core', containing file '/store_path_replaced/.pnpm-v-store/@types/express@4.17.17/node_modules/@types/express/index.d.ts', root directory '/tmp/tsc_test1/projA/node_modules/@types'. ========
 Resolving with primary search path '/tmp/tsc_test1/projA/node_modules/@types'.
 Looking up in 'node_modules' folder, initial location '/store_path_replaced/.pnpm-v-store/@types/express@4.17.17/node_modules/@types/express'.
@@ -70,10 +75,10 @@ File '/store_path_replaced/.pnpm-v-store/@types/express@4.17.17/node_modules/@ty
 File '/store_path_replaced/.pnpm-v-store/@types/express@4.17.17/node_modules/@types/express-serve-static-core/index.d.ts' exist - use it as a name resolution result.
 Resolving real path for '/store_path_replaced/.pnpm-v-store/@types/express@4.17.17/node_modules/@types/express-serve-static-core/index.d.ts', result '/store_path_replaced/.pnpm-v-store/@types/express-serve-static-core@4.17.33/node_modules/@types/express-serve-static-core/index.d.ts'.
 ======== Type reference directive 'express-serve-static-core' was successfully resolved to '/store_path_replaced/.pnpm-v-store/@types/express-serve-static-core@4.17.33/node_modules/@types/express-serve-static-core/index.d.ts' with Package ID '@types/express-serve-static-core/index.d.ts@4.17.33', primary: false. ========
+```
 
-
-Main diff:
-
+// Main diff:
+```
 /// with paths
 - File '/tmp/tsc_test1/projA/node_modules/express-serve-static-core.d.ts' does not exist.
 - File '/tmp/tsc_test1/projA/node_modules/@types/express-serve-static-core.d.ts' does not exist.
@@ -88,6 +93,7 @@ Main diff:
 + 'package.json' does not have a 'typings' field.
 + 'package.json' has 'types' field 'index.d.ts' that references '/store_path_replaced/.pnpm-v-store/@types/express@4.17.17/node_modules/@types/express-serve-static-core/index.d.ts'.
 // the main difference that it reads `package.json` and takes `types` ref from there
+```
 
 
 To have types out of `node_modules/@types/` I am using use `--public-hoist-pattern ""` for pnpm, this is important on trying to reproduce.
@@ -117,9 +123,8 @@ tsc types with paths, type resolution paths, non-hoisted types and paths
 ### 💻 Code
 
 Test case:
-1. Use the example project from github or test-case.tar
-2. Install dependencies with the exact command:
-`pnpm i --frozen-lockfile --public-hoist-pattern ""`
+1. Use the test case from this repository
+2. Install dependencies with the exact command: `pnpm i --frozen-lockfile --public-hoist-pattern ""`
 3. Run `tsc`, it will fail to resolve type-referene directive 'express-serve-static-core'
 4. To get tsc complete successfully remove `paths` from `tsconfig.json` and run `tsc` again.
 
