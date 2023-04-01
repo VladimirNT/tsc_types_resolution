@@ -1,6 +1,8 @@
 # Types resolution with compilerOptions.paths
 Example project with minimal test-case for the type resolution issue in tsc
 
+## Link to the case in TS repo:
+https://github.com/microsoft/TypeScript/issues/53572
 
 ## Bug Report
 
